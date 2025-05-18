@@ -1,4 +1,4 @@
-#!/bin/env ./bin/python3
+#!/bin/env ./.venv/bin/python3
 
 import scapy.all as scapy
 import dhcp
