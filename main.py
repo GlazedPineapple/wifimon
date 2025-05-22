@@ -2,16 +2,24 @@
 
 import scapy.all as scapy
 import dhcp
-import socket
+import netifaces
+from pprint import pprint
+
+global wan
+wan = "eth0"
+global lan
+lan = "wlan1"
 
 
 """ packets = scapy.sniff(iface="eth0", count=10)
 print(packets) """
 
 
-# Gets avalible network interfaces 
+# Gets available network interfaces 
+netifaces.interfaces()
+for i in netifaces.interfaces():
+    pprint(netifaces.ifaddresses(i))
 
-print(socket.if_nameindex())
 
 
 #starts dhcp server
