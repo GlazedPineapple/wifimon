@@ -1809,6 +1809,29 @@ wheels = [
 ]
 
 [[package]]
+name = "sdbus"
+version = "0.14.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/17/9a/1dc010428fa1f444809d9aa1adb3ce231dae891b5f33635d8f4d7a8e33fd/sdbus-0.14.0.tar.gz", hash = "sha256:41d61b76cc05a9ea41d10d70a11e9f9a86ed95f40f713630c5e18340e0e4c76f", size = 89146, upload-time = "2025-04-06T20:16:45.218Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e7/de/cc625bd2c61a1ba917b7ef9f7bec5357e1d4f68ba204b3d71cf038facade/sdbus-0.14.0-cp39-abi3-manylinux_2_28_aarch64.whl", hash = "sha256:9a5b9315090ffbe232c82edc3e6f1a449ed27c7ef7f3ebc81d73326057fba8f1", size = 767982, upload-time = "2025-04-06T20:17:06.853Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/68/47baafb1cc32ef18e45d6e1f0f8ca99864d582d59da855e035c1ce3fed13/sdbus-0.14.0-cp39-abi3-manylinux_2_28_armv7l.whl", hash = "sha256:46f60ee66f18f0a3b9cb19639bc8a9ada62cd7f89343bba8a3140c0563885561", size = 696782, upload-time = "2025-04-06T20:17:08.927Z" },
+    { url = "https://files.pythonhosted.org/packages/b6/74/4a00d5dcf0037e132db404bcc770d0e49c9c088a373e8916ef8e9eb074cf/sdbus-0.14.0-cp39-abi3-manylinux_2_28_x86_64.whl", hash = "sha256:d38597858490c2063dd3de508942688075089843ef851fb8c062cb393e8b99d5", size = 741140, upload-time = "2025-04-06T20:17:10.928Z" },
+]
+
+[[package]]
+name = "sdbus-networkmanager"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "sdbus" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/31/ab/e864c6c2eb778c194cfb56cd9d98b5594dc00573210fdf6b44904745a0bf/sdbus-networkmanager-2.0.0.tar.gz", hash = "sha256:3572ac3a8189c683ec0416acb148761773a8f0881ad3d78b6d6f6864eff9c50b", size = 165071, upload-time = "2023-06-04T10:50:16.09Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/04/0c/6a67ebd967f3816022d04ab93db5f3d998a55d79c138af11feb1f59a6f10/sdbus_networkmanager-2.0.0-py3-none-any.whl", hash = "sha256:710a5ccfb1c3267016c990023ca76ad6210b13ab63aa5dad3a20e590b291b08f", size = 248349, upload-time = "2023-06-04T10:50:13.355Z" },
+]
+
+[[package]]
 name = "send2trash"
 version = "1.8.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2054,6 +2077,7 @@ dependencies = [
     { name = "netifaces" },
     { name = "pyx" },
     { name = "scapy" },
+    { name = "sdbus-networkmanager" },
     { name = "vpython" },
 ]
 
@@ -2064,6 +2088,7 @@ requires-dist = [
     { name = "netifaces", specifier = ">=0.11.0" },
     { name = "pyx", specifier = ">=0.16" },
     { name = "scapy", specifier = ">=2.6.1" },
+    { name = "sdbus-networkmanager", specifier = ">=2.0.0" },
     { name = "vpython", specifier = ">=7.6.5" },
 ]
 

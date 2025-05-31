@@ -5,10 +5,11 @@ import dhcp
 import netifaces
 from pprint import pprint
 
-global wan
-wan = "eth0"
-global lan
-lan = "wlan1"
+
+global intWAN
+intWAN = "eth0"
+global intLAN
+intLAN = "wlan1"
 
 
 """ packets = scapy.sniff(iface="eth0", count=10)
@@ -16,14 +17,14 @@ print(packets) """
 
 
 # Gets available network interfaces 
-netifaces.interfaces()
-for i in netifaces.interfaces():
-    pprint(netifaces.ifaddresses(i))
-
+#netifaces.interfaces()
+#for i in netifaces.interfaces():
+#    pprint(netifaces.ifaddresses(i))
 
 
 #starts dhcp server
-dhcp.start()
+dhcp.start(intLAN)
+dhcp.client(intWAN)
 
 leases = dhcp.leases()
 #print(leases)
