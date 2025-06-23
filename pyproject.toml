@@ -8,6 +8,7 @@ dependencies = [
     "cryptography>=45.0.2",
     "libpcap>=1.11.0b24",
     "netifaces>=0.11.0",
+    "pprintpp>=0.4.0",
     "pyx>=0.16",
     "scapy>=2.6.1",
     "sdbus-networkmanager>=2.0.0",

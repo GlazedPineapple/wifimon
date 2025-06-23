@@ -4,22 +4,26 @@ import scapy.all as scapy
 import dhcp
 import netifaces
 from pprint import pprint
-
+import network
 
 global intWAN
+#defaults
 intWAN = "eth0"
 global intLAN
+#defaults
 intLAN = "wlan1"
 
-
-""" packets = scapy.sniff(iface="eth0", count=10)
-print(packets) """
+network.sniff(intWAN,5)
 
 
-# Gets available network interfaces 
-#netifaces.interfaces()
-#for i in netifaces.interfaces():
-#    pprint(netifaces.ifaddresses(i))
+print("Network interface info:",network.getIntDetail())
+intWan = input("Please select an interface for wan: \n")
+intLan = input("Please select an interface for Lan: \n")
+
+
+
+
+
 
 
 #starts dhcp server
