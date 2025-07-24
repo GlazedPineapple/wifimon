@@ -1,29 +1,30 @@
-# Scan for nearby WiFi access points by capturing beacon frames.
-#test
-from scapy.all import *
-from scapy.layers.dot11 import Dot11, Dot11Beacon, Dot11Elt
+from scapy.all import sniff, Dot11, Dot11Beacon, Dot11Elt
+import queue
 
-networks = set()
+def beacon_scan(iface: str, output_q: queue.Queue, stop_flag):
+    seen = set()
 
-def beacon_handler(packet):
-    if packet.haslayer(Dot11Beacon):
-        ssid = packet[Dot11Elt].info.decode(errors='ignore')
-        bssid = packet[Dot11].addr3
-        channel = None
-        rssi = packet.dBm_AntSignal if hasattr(packet, 'dBm_AntSignal') else "N/A"
+    def handler(pkt):
+        if pkt.haslayer(Dot11Beacon):
+            ssid = pkt[Dot11Elt].info.decode(errors='ignore')
+            bssid = pkt[Dot11].addr3
+            rssi = pkt.dBm_AntSignal if hasattr(pkt, 'dBm_AntSignal') else "N/A"
+            channel = None
 
-        # Find channel number in Dot11Elt layers
-        elt = packet[Dot11Elt]
-        while isinstance(elt, Dot11Elt):
-            if elt.ID == 3:  # Channel ID
-                channel = ord(elt.info) if isinstance(elt.info, bytes) else elt.info
-                break
-            elt = elt.payload.getlayer(Dot11Elt)
+            elt = pkt[Dot11Elt]
+            while isinstance(elt, Dot11Elt):
+                if elt.ID == 3:
+                    channel = elt.info[0] if isinstance(elt.info, bytes) else elt.info
+                    break
+                elt = elt.payload.getlayer(Dot11Elt)
 
-        network_id = f"{ssid} - {bssid}"
-        if network_id not in networks:
-            networks.add(network_id)
-            print(f"[BEACON] SSID: {ssid} | BSSID: {bssid} | Channel: {channel} | RSSI: {rssi} dBm")
+            net_id = f"{ssid} - {bssid}"
+            if net_id not in seen:
+                seen.add(net_id)
+                message = f"[BEACON] SSID: {ssid} | BSSID: {bssid} | Channel: {channel} | RSSI: {rssi} dBm"
+                try:
+                    output_q.put(message, timeout=0.1)
+                except queue.Full:
+                    pass
 
-# Replace with the Monitor mode interface -Raspberry Pi - wlan0mon
-sniff(iface="wlan0mon", prn=beacon_handler, store=0)
+    sniff(iface=iface, prn=handler, store=0, stop_filter=lambda _: stop_flag.stop)

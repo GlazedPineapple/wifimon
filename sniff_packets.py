@@ -1,9 +1,11 @@
-#PACKET SNIFFING SCRIPT
 from scapy.all import sniff, Dot11
+import queue
 
-def packet_handler(packet):
-    if packet.haslayer(Dot11):
-        print(f"[+] Packet: {packet.summary()}")
+def sniff_packets(iface: str, packet_queue: queue.Queue, stop_flag):
+    print('sniff_packets')
+    def packet_handler(packet):
+        summary = packet.summary()
+        packet_queue.put(summary)
 
-# Replace 'wlan0mon' with your actual monitor interface
-sniff(iface='wlan0mon', prn=packet_handler, store=0)
+    print('sniff')
+    sniff(iface=iface, prn=packet_handler, store=0, stop_filter=lambda p: stop_flag.stop)

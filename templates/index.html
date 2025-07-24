@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Exploit Panel</title>
+    <!--    <link rel="stylesheet" href="style.css">-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.sidebar button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('selected'));
+                    button.classList.add('selected');
+                });
+            });
+        });
+    </script>
+
+</head>
+
+
+<body>
+<header>
+    <h1>Exploit Panel</h1>
+</header>
+<div class="input-bar">
+    <label id="input-label" class="input-label">No Selection</label>
+    <div class="input-group">
+        <label for="input-text">Interface (Ex: wlan0, eth0)</label>
+        <input id="input-text" type="text" placeholder=""/>
+    </div>
+    <div class="input-group">
+        <label for="input-id">Target IP</label>
+        <input id="input-id" type="text" placeholder=""/>
+    </div>
+</div>
+
+<div class="container">
+    <div class="sidebar">
+        <button data-text="Alpha" data-id="1">List Interfaces</button>
+        <button data-text="Alpha" data-id="1">Ping</button>
+        <button data-text="Beta" data-id="2">Packet Sniffer</button>
+        <button data-text="Gamma" data-id="3">Beacon Scanner</button>
+        <button data-text="Delta" data-id="4">Probe Tracker</button>
+        <button data-text="Echo" data-id="4">WiFi Analyzer</button>
+    </div>
+    <div class="main">
+        <div class="controls">
+            <button id="start">Start</button>
+            <button id="stop">Stop</button>
+            <button id="clear">Clear</button>
+        </div>
+        <textarea id="pi-output" placeholder="Type here..."></textarea></div>
+</div>
+
+<script>
+    let eventSource = null;
+    let selectedEndpoint = null;
+
+    function startStream(endpoint, iface, target) {
+        if (eventSource) {
+            eventSource.close();
+        }
+
+        // Encode query parameters safely
+        const url = `${endpoint}?iface=${encodeURIComponent(iface)}&target=${encodeURIComponent(target)}`;
+        eventSource = new EventSource(url);
+
+        const textarea = document.getElementById("pi-output");
+
+        eventSource.onmessage = function (event) {
+            textarea.value += event.data + "\n";
+            if (textarea.value.length > 5000) {
+                textarea.value = textarea.value.substring(textarea.value.length - 5000);
+            }
+            textarea.scrollTop = textarea.scrollHeight;
+        };
+
+
+        eventSource.onerror = function () {
+            console.error("Stream error. Closing stream.");
+            eventSource.close();
+        };
+    }
+
+    // Handle sidebar button clicks (set endpoint only)
+    document.querySelectorAll('.sidebar button').forEach(button => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('selected'));
+            button.classList.add('selected');
+
+            document.getElementById('input-label').textContent = button.textContent;
+            selectedEndpoint = "/" + button.textContent.toLowerCase().replace(/\s+/g, '-');
+        });
+    });
+
+    // Start button
+    document.getElementById('start').addEventListener('click', () => {
+        const iface = document.getElementById("input-text").value.trim();
+        const target = document.getElementById("input-id").value.trim();
+
+        if (!selectedEndpoint) {
+            alert("Please select a module from the sidebar.");
+            return;
+        }
+
+        startStream(selectedEndpoint, iface, target);
+    });
+
+    // Stop button
+    document.getElementById('stop').addEventListener('click', () => {
+        if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+        }
+    });
+
+    document.getElementById("clear").addEventListener("click", () => {
+        document.getElementById("pi-output").value = "";
+    });
+</script>
+</body>
+
+</html>
