@@ -1,3 +1,4 @@
+#!/bin/env ./.venv/bin/python3
 def start(int):
     """
     #TODO:

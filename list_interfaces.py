@@ -1,3 +1,5 @@
+#!/bin/env ./.venv/bin/python3
+
 import re
 import os
 

@@ -1,3 +1,4 @@
+#!/bin/env ./.venv/bin/python3
 from ping3 import ping
 
 def ping_host(host: str, count: int = 10):

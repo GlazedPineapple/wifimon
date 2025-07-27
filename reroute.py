@@ -1,3 +1,4 @@
+#!/bin/env ./.venv/bin/python3
 
 from scapy.all import sniff
 from scapy.packet import Packet

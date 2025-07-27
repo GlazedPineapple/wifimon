@@ -1,3 +1,5 @@
+#!/bin/env ./.venv/bin/python3
+
 # probe_tracker.py
 from scapy.all import sniff, Dot11, Dot11ProbeReq, Dot11Elt
 import queue

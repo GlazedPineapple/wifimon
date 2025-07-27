@@ -1,3 +1,5 @@
+#!/bin/env ./.venv/bin/python3
+
 from flask import Flask, render_template, request, Response
 import threading, queue, time
 from list_interfaces import get_interfaces

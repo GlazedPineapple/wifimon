@@ -1,3 +1,4 @@
+#!/bin/env ./.venv/bin/python3
 from scapy.all import sniff, Dot11, Dot11Beacon, Dot11Elt
 import queue
 
