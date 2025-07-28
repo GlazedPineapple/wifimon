@@ -4,7 +4,7 @@
 #Module for teaching/ Learning Mode
 #learning mode for WiFi packet analysis
 #This module captures and explains WiFi packets in real-time.
-from scapy.all import *
+from scapy.all import sniff
 from scapy.layers.dot11 import Dot11, Dot11Beacon, Dot11ProbeReq, Dot11Deauth
 
 def explain(packet):
