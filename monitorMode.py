@@ -24,7 +24,7 @@ def show_interface_status(iface: str):
         print(f"Could not get status for {iface}: {e.stderr}")
 
 
-def set_monitor_mode(iface: str, mode: int):
+def set_monitor_mode(iface: str, mode: bool):
     """Enables or disables monitor mode."""
     # Bring the interface down before changing mode
     set_interface_state(iface, "down")
