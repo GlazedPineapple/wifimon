@@ -9,3 +9,4 @@ source "$APP_DIR/.venv/bin/activate"
 # Run the python script
 # The 'exec' command replaces the shell process with the python process
 python3 "$APP_DIR/webserver.py"
+
