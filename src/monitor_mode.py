@@ -52,8 +52,8 @@ def set_monitor_mode(iface: str, mode: bool):
 if __name__ == "__main__":
     # Check if the correct number of arguments are provided
     if len(sys.argv) != 3:
-        print("Usage: sudo ./monitorMode.py <interface> <mode>")
-        print("Example: sudo ./monitorMode.py wlan0 1")
+        print("Usage: sudo ./monitor_mode.py <interface> <mode>")
+        print("Example: sudo ./monitor_mode.py wlan0 1")
         print("  <mode>: 1 for monitor mode, 0 for managed mode")
         sys.exit(1)
 

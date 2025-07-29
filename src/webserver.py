@@ -2,15 +2,19 @@
 
 from flask import Flask, render_template, request, Response
 import threading, queue, time
-from list_interfaces import get_interfaces
-from ping import ping_host
-from sniff_packets import sniff_packets
-from beacon_scanner import beacon_scan
-from probe_tracker import probe_track
-from wifi_analyzer import wifi_analyze
+from modules.list_interfaces import get_interfaces
+from modules.ping import ping_host
+from modules.sniff_packets import sniff_packets
+from modules.beacon_scanner import beacon_scan
+from modules.probe_tracker import probe_track
+from modules.wifi_security import analyze_security
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="web/templates", static_folder='web/static')
 
+
+# Monitor mode switch for given interface
+# Add new "wifi teacher" module
+# Make UI vertical
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -21,7 +25,7 @@ def index():
         input_id = request.form.get("input_id", "")
         # Do something with the values here
         print(f"Received: Text = {input_text}, ID = {input_id}")
-    return render_template("index.html", input_text=input_text, input_id=input_id)
+    return render_template('index.html', input_text=input_text, input_id=input_id)
 
 
 def test_stream(label):
@@ -127,22 +131,22 @@ def probe_tracker():
 
 @app.route("/wifi-analyzer")
 def wifi_analyzer():
-    q = queue.Queue(maxsize=100)
-    stop_flag = type("StopFlag", (), {"stop": False})()
+    q = queue.Queue()
 
-    iface = request.args.get("iface", "wlan1")
+    thread = threading.Thread(target=analyze_security, args=(q,))
+    thread.daemon = True
+    thread.start()
 
     def stream():
-        thread = threading.Thread(target=wifi_analyze, args=(iface, q, stop_flag), daemon=True)
-        thread.start()
-        try:
-            while True:
-                msg = q.get()
-                yield f"data: {msg}\n\n"
-        except GeneratorExit:
-            stop_flag.stop = True
+        while True:
+            try:
+                data = q.get(timeout=1)
+                yield f"data: {data}\n\n"
+            except queue.Empty:
+                continue
 
-    return Response(stream(), mimetype="text/event-stream")
+    return Response(stream(), mimetype='text/event-stream')
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
