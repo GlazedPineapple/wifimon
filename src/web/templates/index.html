@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Exploit Panel</title>
+    <title>WiFiMon</title>
     <!--    <link rel="stylesheet" href="style.css">-->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
@@ -23,7 +23,7 @@
 
 <body>
 <header>
-    <h1>Exploit Panel</h1>
+    <h1>WiFiMon</h1>
 </header>
 <div class="input-bar">
     <label id="input-label" class="input-label">No Selection</label>
@@ -41,10 +41,11 @@
     <div class="sidebar">
         <button data-text="Alpha" data-id="1">List Interfaces</button>
         <button data-text="Alpha" data-id="1">Ping</button>
-        <button data-text="Beta" data-id="2">Packet Sniffer</button>
+        <button data-text="Beta" data-id="2" >Packet Sniffer</button>
         <button data-text="Gamma" data-id="3">Beacon Scanner</button>
         <button data-text="Delta" data-id="4">Probe Tracker</button>
-        <button data-text="Echo" data-id="4">WiFi Analyzer</button>
+        <button data-text="Echo" data-id="4" >WiFi Analyzer</button>
+        <button data-text="Echo" data-id="4" >WiFi Teacher</button>
     </div>
     <div class="main">
         <div class="controls">
@@ -58,6 +59,7 @@
 <script>
     let eventSource = null;
     let selectedEndpoint = null;
+    const TEXT_BOX_SIZE = 10000;
 
     function startStream(endpoint, iface, target) {
         if (eventSource) {
@@ -72,8 +74,8 @@
 
         eventSource.onmessage = function (event) {
             textarea.value += event.data + "\n";
-            if (textarea.value.length > 5000) {
-                textarea.value = textarea.value.substring(textarea.value.length - 5000);
+            if (textarea.value.length > TEXT_BOX_SIZE) {
+                textarea.value = textarea.value.substring(textarea.value.length - TEXT_BOX_SIZE);
             }
             textarea.scrollTop = textarea.scrollHeight;
         };

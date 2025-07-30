@@ -2,150 +2,94 @@
 
 from flask import Flask, render_template, request, Response
 import threading, queue, time
-from modules.list_interfaces import get_interfaces
-from modules.ping import ping_host
-from modules.sniff_packets import sniff_packets
-from modules.beacon_scanner import beacon_scan
-from modules.probe_tracker import probe_track
-from modules.wifi_security import analyze_security
+from modules.list_interfaces import ListInterfacesModule
+from modules.module import Module
+from modules.ping import PingModule
+from modules.sniff_packets import PacketSnifferModule
+from modules.beacon_scanner import BeaconScannerModule
+from modules.probe_tracker import ProbeTrackerModule
+from modules.wifi_security import SecurityAnalyzerModule
+from modules.wifi_teacher import TeacherModule
 
 app = Flask(__name__, template_folder="web/templates", static_folder='web/static')
 
 
-# Monitor mode switch for given interface
-# Add new "wifi teacher" module
-# Make UI vertical
+# TODO: Monitor mode switch for given interface
 
-@app.route("/", methods=["GET", "POST"])
+def stream_module_output(module: Module):
+    client_closed = False
+
+    print(f'Starting {str(module)}')
+    yield f'data: > Starting {str(module)}\n\n'
+    module.start()
+    try:
+        while module.is_running():
+            while not module.output_queue.empty():
+                mes = module.output_queue.get(timeout=0.5)
+                yield f'data: {mes}\n\n'
+    except GeneratorExit:
+        module.stop()
+        print(f'Client stopped {str(module)}')
+        client_closed = True
+    finally:
+        module.stop()
+        while not (client_closed or module.output_queue.empty()):
+            mes = module.output_queue.get(timeout=0.5)
+            yield f'data: {mes}\n\n'
+
+    print(f'Stopping {str(module)}')
+
+
+@app.route("/", methods=["GET"])
 def index():
-    input_text = ""
-    input_id = ""
-    if request.method == "POST":
-        input_text = request.form.get("input_text", "")
-        input_id = request.form.get("input_id", "")
-        # Do something with the values here
-        print(f"Received: Text = {input_text}, ID = {input_id}")
-    return render_template('index.html', input_text=input_text, input_id=input_id)
-
-
-def test_stream(label):
-    for i in range(0, 100):
-        yield f'data: "{label}"\n\n'
-        time.sleep(0.1)
-
-
-class StopFlag:
-    def __init__(self):
-        self.stop = False
+    return render_template('index.html')
 
 
 @app.route("/list-interfaces")
 def list_interfaces():
-    print('Listing interfaces')
-
-    def stream():
-        interfaces = get_interfaces()
-        for ifa in interfaces:
-            yield f"data: {ifa}\n\n"
-
-    return Response(stream(), mimetype='text/event-stream')
+    return Response(stream_module_output(ListInterfacesModule()), mimetype='text/event-stream')
 
 
 @app.route("/ping")
 def ping():
     target = request.args.get("target", "")
-    iface = request.args.get("iface", "")
 
-    def stream():
-        if not target:
-            yield f"data: Error: No target provided\n\n"
-            return
-
-        yield f"data: Pinging {target} using interface {iface}...\n\n"
-        results = ping_host(target)
-        for line in results:
-            yield f"data: {line}\n\n"
-
-    return Response(stream(), mimetype='text/event-stream')
+    return Response(stream_module_output(PingModule(target)), mimetype='text/event-stream')
 
 
 @app.route("/packet-sniffer")
 def packet_sniffer():
-    print('Sniffing packets')
     iface = request.args.get("iface", "wlan0")
-    q = queue.Queue()
-    stop_flag = StopFlag()
 
-    def stream():
-        thread = threading.Thread(target=sniff_packets, args=(iface, q, stop_flag), daemon=True)
-        thread.start()
-        try:
-            while True:
-                packet_summary = q.get()
-                yield f"data: {packet_summary}\n\n"
-        except GeneratorExit:
-            stop_flag.stop = True
-
-    return Response(stream(), mimetype="text/event-stream")
+    return Response(stream_module_output(PacketSnifferModule(iface)), mimetype="text/event-stream")
 
 
 @app.route("/beacon-scanner")
 def beacon_scanner():
-    q = queue.Queue(maxsize=100)
-    stop_flag = type("StopFlag", (), {"stop": False})()
-
     iface = request.args.get("iface", "wlan1")
 
-    def stream():
-        thread = threading.Thread(target=beacon_scan, args=(iface, q, stop_flag), daemon=True)
-        thread.start()
-        try:
-            while True:
-                msg = q.get()
-                yield f"data: {msg}\n\n"
-        except GeneratorExit:
-            stop_flag.stop = True
-
-    return Response(stream(), mimetype='text/event-stream')
+    return Response(stream_module_output(BeaconScannerModule(iface)), mimetype='text/event-stream')
 
 
 @app.route("/probe-tracker")
 def probe_tracker():
-    q = queue.Queue(maxsize=100)
-    stop_flag = type("StopFlag", (), {"stop": False})()
-
     iface = request.args.get("iface", "wlan1")
 
-    def stream():
-        thread = threading.Thread(target=probe_track, args=(iface, q, stop_flag), daemon=True)
-        thread.start()
-        try:
-            while True:
-                msg = q.get()
-                yield f"data: {msg}\n\n"
-        except GeneratorExit:
-            stop_flag.stop = True
-
-    return Response(stream(), mimetype="text/event-stream")
+    return Response(stream_module_output(ProbeTrackerModule(iface)), mimetype="text/event-stream")
 
 
 @app.route("/wifi-analyzer")
 def wifi_analyzer():
-    q = queue.Queue()
+    iface = request.args.get("iface", "wlan1")
 
-    thread = threading.Thread(target=analyze_security, args=(q,))
-    thread.daemon = True
-    thread.start()
+    return Response(stream_module_output(SecurityAnalyzerModule(iface)), mimetype='text/event-stream')
 
-    def stream():
-        while True:
-            try:
-                data = q.get(timeout=1)
-                yield f"data: {data}\n\n"
-            except queue.Empty:
-                continue
 
-    return Response(stream(), mimetype='text/event-stream')
+@app.route("/wifi-teacher")
+def wifi_teacher():
+    iface = request.args.get("iface", "")
+
+    return Response(stream_module_output(TeacherModule(iface)), mimetype='text/event-stream')
 
 
 if __name__ == "__main__":

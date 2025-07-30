@@ -1,13 +1,20 @@
 #!/bin/env ./.venv/bin/python3
 
-from scapy.all import sniff, Dot11
-import queue
+from scapy.all import sniff
+from abc import ABC
+from modules.module import Module
 
-def sniff_packets(iface: str, packet_queue: queue.Queue, stop_flag):
-    print('sniff_packets')
-    def packet_handler(packet):
-        summary = packet.summary()
-        packet_queue.put(summary)
 
-    print('sniff')
-    sniff(iface=iface, prn=packet_handler, store=0, stop_filter=lambda p: stop_flag.stop)
+class PacketSnifferModule(Module, ABC):
+    def __init__(self, iface: str):
+        super().__init__('Packet Sniffer Module')
+        self._iface = iface
+
+    def _task(self):
+        def packet_handler(packet):
+            summary = packet.summary()
+            self._output_queue.put(summary)
+
+        sniff(iface=self._iface, prn=packet_handler, store=0, stop_filter=lambda _: self._stop_event.is_set())
+
+        print(f'{__name__}: stopped')

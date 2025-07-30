@@ -1,12 +1,24 @@
 #!/bin/env ./.venv/bin/python3
 
-import re
 import os
+from modules.module import Module
+from abc import ABC
 
-def get_interfaces():
-    try:
-        # Use /sys/class/net to get list of network interfaces
-        interfaces = os.listdir('/sys/class/net')
-        return interfaces
-    except Exception as e:
-        return [f"Error: {str(e)}"]
+
+class ListInterfacesModule(Module, ABC):
+    def __init__(self):
+        super().__init__('List Interfaces Module')
+
+    def _task(self):
+        try:
+            interfaces = os.listdir('/sys/class/net')
+            iface_str = 'Available interfaces: '
+            for iface in interfaces:
+                iface_str += str(iface) + ' '
+            print(f'Putting "{iface_str}"')
+            self.output_queue.put(iface_str)
+        except Exception as e:
+            return [f"Error: {str(e)}"]
+
+        print(f'{__name__}: stopped')
+
