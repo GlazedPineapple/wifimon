@@ -4,7 +4,7 @@
 PROJECT_DIR="/home/aokovacs/Documents/wifimon"
 SERVICE_NAME="wifimon_webserver.service"
 UNIT_FILE="/etc/systemd/system/$SERVICE_NAME"
-WRAPPER_SCRIPT_SOURCE="$PROJECT_DIR/run_webserver.sh"
+WRAPPER_SCRIPT_SOURCE="$PROJECT_DIR/src/run_webserver.sh"
 WRAPPER_SCRIPT_DEST="/usr/local/bin/run_webserver.sh"
 
 # --- Script Logic ---
