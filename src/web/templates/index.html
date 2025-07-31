@@ -35,17 +35,24 @@
         <label for="input-id">Target IP</label>
         <input id="input-id" type="text" placeholder=""/>
     </div>
+    <div class="input-group">
+        <label for="monitor-toggle">Monitor Mode (wlan1)</label>
+        <label class="switch">
+            <input type="checkbox" id="monitor-toggle">
+            <span class="slider round"></span>
+        </label>
+    </div>
 </div>
 
 <div class="container">
     <div class="sidebar">
         <button data-text="Alpha" data-id="1">List Interfaces</button>
         <button data-text="Alpha" data-id="1">Ping</button>
-        <button data-text="Beta" data-id="2" >Packet Sniffer</button>
+        <button data-text="Beta" data-id="2">Packet Sniffer</button>
         <button data-text="Gamma" data-id="3">Beacon Scanner</button>
         <button data-text="Delta" data-id="4">Probe Tracker</button>
-        <button data-text="Echo" data-id="4" >WiFi Analyzer</button>
-        <button data-text="Echo" data-id="4" >WiFi Teacher</button>
+        <button data-text="Echo" data-id="4">WiFi Analyzer</button>
+        <button data-text="Echo" data-id="4">WiFi Teacher</button>
     </div>
     <div class="main">
         <div class="controls">
@@ -121,6 +128,15 @@
 
     document.getElementById("clear").addEventListener("click", () => {
         document.getElementById("pi-output").value = "";
+    });
+
+    document.getElementById("monitor-toggle").addEventListener("change", async function () {
+        const enabled = this.checked;
+        const response = await fetch(`/monitor-mode?iface=wlan1&enable=${enabled}`, {
+            method: "POST"
+        });
+        const text = await response.text();
+        alert(text);  // Optional feedback
     });
 </script>
 </body>

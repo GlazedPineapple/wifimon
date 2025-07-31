@@ -10,6 +10,7 @@ from modules.beacon_scanner import BeaconScannerModule
 from modules.probe_tracker import ProbeTrackerModule
 from modules.wifi_security import SecurityAnalyzerModule
 from modules.wifi_teacher import TeacherModule
+import monitor_mode
 
 app = Flask(__name__, template_folder="web/templates", static_folder='web/static')
 
@@ -90,6 +91,18 @@ def wifi_teacher():
     iface = request.args.get("iface", "")
 
     return Response(stream_module_output(TeacherModule(iface)), mimetype='text/event-stream')
+
+
+@app.route("/monitor-mode", methods=["POST"])
+def monitor_mode_route():
+    enable_str = request.args.get("enable", "false").lower()
+
+    success = monitor_mode.set_monitor_mode('wlan1', enable_str == "true")
+
+    if success:
+        return f'Successfully set monitor mode to {enable_str}'
+    else:
+        return f'Failed to set monitor mode to {enable_str}!!!', 500
 
 
 if __name__ == "__main__":

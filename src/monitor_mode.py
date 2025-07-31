@@ -2,11 +2,15 @@
 
 import sys
 import subprocess
+from subprocess import CalledProcessError
 
-def set_interface_state(iface: str, state: str):
+
+def set_interface_state(iface: str, enabled: bool):
     """Brings the interface up or down."""
+    state = 'up' if enabled else 'down'
     print(f"Setting interface {iface} to {state}...")
     subprocess.run(["ifconfig", iface, state], check=True)
+
 
 def show_interface_status(iface: str):
     """Runs 'iwconfig <interface>' and prints the result."""
@@ -14,9 +18,9 @@ def show_interface_status(iface: str):
     try:
         # text=True decodes the output as text automatically
         result = subprocess.run(
-            ["iwconfig", iface], 
-            capture_output=True, 
-            text=True, 
+            ["iwconfig", iface],
+            capture_output=True,
+            text=True,
             check=True
         )
         print(result.stdout)
@@ -24,29 +28,30 @@ def show_interface_status(iface: str):
         print(f"Could not get status for {iface}: {e.stderr}")
 
 
-def set_monitor_mode(iface: str, mode: bool):
+def set_monitor_mode(iface: str, enabled: bool):
     """Enables or disables monitor mode."""
     # Bring the interface down before changing mode
-    set_interface_state(iface, "down")
+    try:
+        set_interface_state(iface, False)
+        if enabled:
+            print(f"Enabling monitor mode on {iface}...")
+            subprocess.run(["iwconfig", iface, "mode", "monitor"], check=True)
+        else:
+            print(f"Disabling monitor mode (Managed) on {iface}...")
+            subprocess.run(["iwconfig", iface, "mode", "managed"], check=True)
 
-    if mode == 1:
-        print(f"Enabling monitor mode on {iface}...")
-        subprocess.run(["iwconfig", iface, "mode", "monitor"], check=True)
-    elif mode == 0:
-        print(f"Disabling monitor mode (Managed) on {iface}...")
-        subprocess.run(["iwconfig", iface, "mode", "managed"], check=True)
-    else:
-        print(f"Error: Invalid mode '{mode}'. Use 1 for ON or 0 for OFF.")
-        # Bring the interface back up before exiting on error
-        set_interface_state(iface, "up")
-        return
+        # Bring the interface back up after changing mode
+        set_interface_state(iface, True)
+        print(f"Successfully changed mode for {iface}.")
 
-    # Bring the interface back up after changing mode
-    set_interface_state(iface, "up")
-    print(f"Successfully changed mode for {iface}.")
+        # Show the final status of the interface
+        show_interface_status(iface)
+    except CalledProcessError as cpe:
+        print(f"----Couldn't change mode of interface '{iface}'----")
+        print(cpe)
+        return False
 
-    # Show the final status of the interface
-    show_interface_status(iface)
+    return True
 
 
 if __name__ == "__main__":
@@ -60,7 +65,7 @@ if __name__ == "__main__":
     interface_name = sys.argv[1]
     try:
         mode_selection = int(sys.argv[2])
-        set_monitor_mode(interface_name, mode_selection)
+        set_monitor_mode(interface_name, mode_selection == 'up')
     except subprocess.CalledProcessError as e:
         print(f"An error occurred while running a command: {e}")
         print("Please ensure you are running the script with sudo and the interface name is correct.")
