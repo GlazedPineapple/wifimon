@@ -1,7 +1,7 @@
 # Getting started:
-**Install UV:**
+* **Install UV:**
 https://docs.astral.sh/uv/getting-started/installation/  
-`cd ~/wifimon && source ./.venv/bin/activate`  
-`uv sync` to get latest packages from the lockfile  
-This activates the python virtual enviroment(venv), to leave the venv type the following:
-`deactivate`
+* `source .venv/bin/activate` This activates the python virtual environment (venv). To leave the venv type `deactivate`
+* `uv sync` to get latest packages from the lockfile.
+
+![WiFiMon Screenshot](screenshot.png)

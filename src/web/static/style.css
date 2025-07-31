@@ -217,3 +217,40 @@ input:checked + .slider {
 input:checked + .slider:before {
     transform: translateX(26px);
 }
+
+textarea::-webkit-scrollbar {
+    width: 10px;
+}
+
+textarea::-webkit-scrollbar-track {
+    background: var(--bg-dark); /* background of the track */
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color); /* scrollbar color */
+    border-radius: 5px;
+    border: 2px solid var(--bg-dark); /* for padding effect */
+}
+
+textarea::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-color-dark);
+}
+
+/* Optional: make all scrollbars across the site match */
+*::-webkit-scrollbar {
+    width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: 5px;
+    border: 2px solid var(--bg-dark);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-color-dark);
+}
