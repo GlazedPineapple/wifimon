@@ -9,6 +9,8 @@ class BeaconScannerModule(Module, ABC):
     def __init__(self, iface: str):
         super().__init__('Beacon Scanner Module')
         self._iface = iface
+        if len(iface) == 0:
+            exit(1)
 
     def _task(self):
         print(f'{__name__}: Scanner starting on "{self._iface}"')

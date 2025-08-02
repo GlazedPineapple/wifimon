@@ -12,7 +12,10 @@ import signal
 class mod_8021x(Module, ABC):
     def __init__(self, iface: str, essid: str):
         self.iface=iface
+        if len(iface) == 0:
+            exit(1)
         self.essid=essid
+        
 
     def _task(self):
         process = subprocess.Popen(["/bin/env", "sudo", "/home/aokovacs/Documents/wifimon/eaphammer_manager.sh", self.iface, self.essid])

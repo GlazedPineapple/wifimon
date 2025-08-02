@@ -9,6 +9,8 @@ class PacketSnifferModule(Module, ABC):
     def __init__(self, iface: str):
         super().__init__('Packet Sniffer Module')
         self._iface = iface
+        if len(iface) == 0:
+            exit(1)
 
     def _task(self):
         def packet_handler(packet):

@@ -10,6 +10,8 @@ class ProbeTrackerModule(Module, ABC):
     def __init__(self, iface: str):
         super().__init__('Probe Tracker Module')
         self._iface = iface
+        if len(iface) == 0:
+            exit(1)
 
     def _task(self):
         seen = set()

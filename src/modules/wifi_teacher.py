@@ -14,6 +14,8 @@ class TeacherModule(Module, ABC):
     def __init__(self, iface: str):
         super().__init__('WiFi Teacher Module')
         self.iface = iface
+        if len(iface) == 0:
+            exit(1)
         atexit.register(self.cleanup)
 
     def cleanup(self):

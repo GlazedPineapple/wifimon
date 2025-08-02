@@ -9,6 +9,8 @@ class SecurityAnalyzerModule(Module, ABC):
     def __init__(self, iface: str):
         super().__init__('Security Analyzer Module')
         self._iface = iface
+        if len(iface) == 0:
+            exit(1)
 
     def _task(self):
         def handler(pkt):
