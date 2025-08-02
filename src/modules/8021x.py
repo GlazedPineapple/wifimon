@@ -3,6 +3,7 @@ import subprocess
 import queue
 from abc import ABC
 from modules.module import Module
+import signal
 
 #/home/aokovacs/Documents/wifimon/eaphammer/ --bssid 1C:7E:E5:97:79:B1  --essid Example  --channel 2  --interface wlan1  --auth wpa-eap  --creds
 
@@ -14,7 +15,7 @@ class mod_8021x(Module, ABC):
         self.essid=essid
 
     def _task(self):
-        process = subprocess.Popen(["/bin/env", "sudo", f"/home/aokovacs/Documents/wifimon/eaphammer/ --bssid 1C:7E:E5:97:79:B1  --essid {self.essid}  --channel 2  --interface {self.iface}  --auth wpa-eap  --creds"])
+        process = subprocess.Popen(["/bin/env", "sudo", "/home/aokovacs/Documents/wifimon/eaphammer_manager.sh", self.iface, self.essid])
         self._stop_event.wait()
-        process.communicate(input=b"\r\n")
+        process.send_signal(signal.SIGINT)
         print(f'{__name__}: stopped')
