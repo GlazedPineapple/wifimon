@@ -50,6 +50,12 @@ header {
     touch-action: auto; /* ✅ Allow scrolling with finger */
 }
 
+.sidebar-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
 .sidebar button {
     padding: 1rem;
     font-size: 2rem;
