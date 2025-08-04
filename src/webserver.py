@@ -10,14 +10,17 @@ from modules.beacon_scanner import BeaconScannerModule
 from modules.probe_tracker import ProbeTrackerModule
 from modules.wifi_security import SecurityAnalyzerModule
 from modules.wifi_teacher import TeacherModule
+from modules.eaphammer_module import mod_8021x
 import monitor_mode
 
 app = Flask(__name__, template_folder="web/templates", static_folder='web/static')
 
 
-# TODO: Monitor mode switch for given interface
-
 def stream_module_output(module: Module):
+    def sanitize_for_sse(message: str) -> str:
+        # Replace problematic characters
+        return message.replace("\r", "").replace("\n", "\\n")
+
     client_closed = False
 
     print(f'Starting {str(module)}')
@@ -27,8 +30,10 @@ def stream_module_output(module: Module):
         while module.is_running():
             while not module.output_queue.empty():
                 mes = module.output_queue.get(timeout=0.5)
-                yield f'data: {mes}\n\n'
-    except GeneratorExit:
+                print(f'Received from queue: {mes}')
+                for line in str(mes).splitlines():
+                    yield f'data: {line}\n'
+                yield '\n'  # End of SSE message    except GeneratorExit:
         module.stop()
         print(f'Client stopped {str(module)}')
         client_closed = True
@@ -53,9 +58,9 @@ def list_interfaces():
 
 @app.route("/ping")
 def ping():
-    target = request.args.get("target", "")
+    target_ip = request.args.get("target", "")
 
-    return Response(stream_module_output(PingModule(target)), mimetype='text/event-stream')
+    return Response(stream_module_output(PingModule(target_ip)), mimetype='text/event-stream')
 
 
 @app.route("/packet-sniffer")
@@ -93,6 +98,16 @@ def wifi_teacher():
     return Response(stream_module_output(TeacherModule(iface)), mimetype='text/event-stream')
 
 
+@app.route("/eap-module")
+def eaphammer_module():
+    iface = request.args.get("iface", "")
+    target_ssid = request.args.get("target", "")
+
+    print(f'eaphammer_route: iface = "{iface}", ssid = "{target_ssid}"')
+
+    return Response(stream_module_output(mod_8021x(iface, target_ssid)), mimetype='text/event-stream')
+
+
 @app.route("/monitor-mode", methods=["POST"])
 def monitor_mode_route():
     enable_str = request.args.get("enable", "false").lower()
@@ -106,4 +121,12 @@ def monitor_mode_route():
 
 
 if __name__ == "__main__":
+    # eaphammer_module = mod_8021x('wlan1', 'Linksys10231')
+    #
+    # try:
+    #     eaphammer_module.start()
+    #     eaphammer_module.wait_for_finish()
+    # except KeyboardInterrupt as kbe:
+    #     print('Stopping module')
+    #     eaphammer_module.stop(wait_time=5)
     app.run(host="0.0.0.0", port=5000, debug=True)

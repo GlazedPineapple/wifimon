@@ -28,11 +28,11 @@
 <div class="input-bar">
     <label id="input-label" class="input-label">No Selection</label>
     <div class="input-group">
-        <label for="input-text">Interface (Ex: wlan0, eth0)</label>
+        <label for="input-text">Interface (Ex: wlan1)</label>
         <input id="input-text" type="text" placeholder=""/>
     </div>
     <div class="input-group">
-        <label for="input-id">Target IP</label>
+        <label for="input-id">Target IP/SSID</label>
         <input id="input-id" type="text" placeholder=""/>
     </div>
     <div class="input-group">
@@ -53,6 +53,7 @@
         <button data-text="Delta" data-id="4">Probe Tracker</button>
         <button data-text="Echo" data-id="4">WiFi Analyzer</button>
         <button data-text="Echo" data-id="4">WiFi Teacher</button>
+        <button>EAP Module</button>
     </div>
     <div class="main">
         <div class="controls">
@@ -136,7 +137,9 @@
             method: "POST"
         });
         const text = await response.text();
-        alert(text);  // Optional feedback
+        if (response.code !== 200) {
+            alert(text)
+        }
     });
 </script>
 </body>
