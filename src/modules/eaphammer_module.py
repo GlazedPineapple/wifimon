@@ -64,9 +64,10 @@ class mod_8021x(Module, ABC):
 
     def stop(self, wait_time: float | None = None):
         print(f'{__name__}: stopping')
-        super().stop(wait_time)
         if self._process is not None:
             self._process.send_signal(signal.SIGTERM)
+        super().stop(wait_time)
+        
 
     def cleanup(self):
         if self._process is not None:
