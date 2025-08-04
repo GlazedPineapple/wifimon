@@ -12,30 +12,36 @@ from modules.wifi_security import SecurityAnalyzerModule
 from modules.wifi_teacher import TeacherModule
 from modules.eaphammer_module import mod_8021x
 import monitor_mode
+import logging
 
 app = Flask(__name__, template_folder="web/templates", static_folder='web/static')
+app.logger.setLevel(logging.INFO)
+
+stop_pressed = False
 
 
 def stream_module_output(module: Module):
+    global stop_pressed, app
+
     def sanitize_for_sse(message: str) -> str:
         # Replace problematic characters
         return message.replace("\r", "").replace("\n", "\\n")
 
     client_closed = False
 
-    print(f'Starting {str(module)}')
+    app.logger.info(f'Starting {str(module)}')
     yield f'data: > Starting {str(module)}\n\n'
     module.start()
     try:
-        while module.is_running():
+        while module.is_running() and not stop_pressed:
             while not module.output_queue.empty():
                 mes = module.output_queue.get(timeout=0.5)
-                print(f'Received from queue: {mes}')
+                app.logger.info(f'Received from queue: {mes}')
                 for line in str(mes).splitlines():
                     yield f'data: {line}\n'
                 yield '\n'  # End of SSE message    except GeneratorExit:
         module.stop()
-        print(f'Client stopped {str(module)}')
+        app.logger.info(f'Client stopped {str(module)}')
         client_closed = True
     finally:
         module.stop()
@@ -43,13 +49,20 @@ def stream_module_output(module: Module):
             mes = module.output_queue.get(timeout=0.5)
             yield f'data: {mes}\n\n'
 
-    print(f'Stopping {str(module)}')
+    app.logger.info(f'Stopping {str(module)}')
+    stop_pressed = False
 
 
 @app.route("/", methods=["GET"])
 def index():
     return render_template('index.html')
 
+@app.route("/stop", methods=["POST"])
+def stop():
+    global stop_pressed
+    stop_pressed = True
+    print("stopping current module")
+    return Response()
 
 @app.route("/list-interfaces")
 def list_interfaces():

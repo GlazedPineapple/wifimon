@@ -122,7 +122,14 @@
     });
 
     // Stop button
-    document.getElementById('stop').addEventListener('click', () => {
+    document.getElementById('stop').addEventListener('click', async () => {
+        const response = await fetch(`/stop`, {
+            method: "POST"
+        });
+        if (!response.ok) {
+            const text = await response.text();
+            alert(text)
+        }
         if (eventSource) {
             eventSource.close();
             eventSource = null;
