@@ -22,6 +22,12 @@ body, html {
     color: var(--text-light);
 }
 
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 header {
     background-color: var(--bg-medium);
     color: var(--white);
@@ -31,10 +37,17 @@ header {
     border-bottom: 2px solid var(--accent-color);
 }
 
+/*.container {*/
+/*    display: flex;*/
+/*    flex-direction: column; !* Add this line *!*/
+/*    height: calc(100vh - 70px); !* Adjust for header height *!*/
+/*}*/
+
 .container {
     display: flex;
-    flex-direction: column; /* Add this line */
-    height: calc(100vh - 70px); /* Adjust for header height */
+    flex-direction: column;
+    flex: 1;
+    height: calc(100vh - 140px); /* Adjust depending on actual header + input-bar height */
 }
 
 .sidebar {
@@ -135,6 +148,11 @@ textarea {
     background-color: var(--bg-medium);
     color: var(--white);
     font-family: monospace;
+}
+
+textarea#pi-output {
+    max-height: 100%;
+    overflow: auto;
 }
 
 .input-bar {

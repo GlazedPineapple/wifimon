@@ -56,6 +56,11 @@ class mod_8021x(Module, ABC):
         print(f'{__name__}: Process returned ({self._process.returncode})')
         print(f'{__name__}: stopped')
 
+    def stop(self, wait_time: float | None = None):
+        super().stop(wait_time)
+        if self._process is not None:
+            self._process.send_signal(signal.SIGTERM)
+
     def cleanup(self):
         if self._process is not None:
             self._process.send_signal(signal.SIGTERM)
