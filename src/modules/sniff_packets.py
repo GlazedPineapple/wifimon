@@ -3,6 +3,7 @@
 from scapy.all import sniff
 from abc import ABC
 from modules.module import Module
+import time
 
 
 class PacketSnifferModule(Module, ABC):
@@ -16,7 +17,7 @@ class PacketSnifferModule(Module, ABC):
         def packet_handler(packet):
             summary = packet.summary()
             self._output_queue.put(summary)
-
+            time.sleep(.05) 
         sniff(iface=self._iface, prn=packet_handler, store=0, stop_filter=lambda _: self._stop_event.is_set())
 
         print(f'{__name__}: stopped')

@@ -44,7 +44,7 @@ class mod_8021x(Module, ABC):
 
         def stdout_thread(stdout: typing.IO[str], output_queue: queue.Queue):
             try:
-                while True:
+                while (not self._stop_event.is_set()):
                     output_queue.put(stdout.readline())
             except:
                 pass
@@ -65,7 +65,7 @@ class mod_8021x(Module, ABC):
     def stop(self, wait_time: float | None = None):
         print(f'{__name__}: stopping')
         if self._process is not None:
-            self._process.send_signal(signal.SIGTERM)
+            self._process.send_signal(signal.SIGINT)
         super().stop(wait_time)
         
 
